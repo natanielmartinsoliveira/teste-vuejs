@@ -1,24 +1,10 @@
 # teste-vuejs
 
-## Project setup
+## Comandos para rodar o DOCKER
 ```
-npm install
+docker build -t vue-nginx .
 ```
-
-### Compiles and hot-reloads for development
 ```
-npm run serve
+docker run --rm -it -p 8080:80 vue-nginx
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
