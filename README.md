@@ -1,7 +1,5 @@
 
 # teste-vuejs
-=======
-# teste-vuejs
 
 ## Comandos para rodar o DOCKER
 ```
