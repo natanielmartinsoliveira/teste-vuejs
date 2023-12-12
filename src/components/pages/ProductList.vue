@@ -46,7 +46,7 @@
                         </tbody>
                     </table>
                     <div class="text-center">
-                      <vue-awesome-paginate :total-items="totalItems" v-model="currentPage" :on-click="onClickHandler" />
+                      <vue-awesome-paginate :total-items="totalItems" v-model="currentPage" />
                     </div>
                     
                 </div>
@@ -56,50 +56,46 @@
 
     
 </template>
- 
-<script>
-
+<script setup>
+import { onMounted, computed, ref, watch } from 'vue';
 import LayoutDiv from '../LayoutDiv.vue';
 import Swal from 'sweetalert2'
 import ProdutosService from "../../services/produtos.service";
 
-export default {
-  name: 'ProductList',
-  components: {
-    LayoutDiv,
-  },
+  let currentPage = ref(1);
+  let totalItems = ref(20);
+  let items = ref();
 
-  data() {
-    return {
-      produtos:[],
-      perPage: 3,
-      currentPage: 1,
-      totalItems: 20,
-      items: []
+  computed(() => {
+    return items.value.length
+  });
+
+  watch(currentPage, (currentValue) => {
+    fetchProdutosList(currentValue);
+  });
+
+  onMounted(() => {
+    fetchProdutosList(1);
+  });
+
+   function fetchProdutosList(page) {
+    if(typeof page !== undefined){
+      ProdutosService.getProdutosPage(page).then(
+        (response) => {
+          console.log(response);
+          items.value = response.data.data;
+          //perPage = response.data.meta.per_page;
+          totalItems.value = response.data.meta.total;
+          return response
+        },
+        (error) => {
+          return error
+        });
     }
-  },
-  computed: {
-    rows() {
-      return this.items.length
-    }
-  },
-  created() {
-    this.fetchProdutosList();
-  },
-  methods: {
-    fetchProdutosList() {
-      ProdutosService.getProdutosPage(this.currentPage).then(
-      (response) => {
-        this.items = response.data.data;
-        this.perPage = response.data.meta.per_page;
-        this.totalItems = response.data.meta.total;
-        return response
-      },
-      (error) => {
-        return error
-      });
-    }, 
-    formattedDate(date) {
+      
+   }
+
+   function formattedDate(date) {
       const day = date.getDate().toString().padStart(2, "0");
       const month = (date.getMonth() + 1)
         .toString()
@@ -107,15 +103,14 @@ export default {
       const year = date.getFullYear().toString();
 
       return `${day}/${month}/${year}`;
-    },
-    formatPrice(value) {
+    }
+
+    function formatPrice(value) {
         let val = (value/1).toFixed(2).replace('.', ',')
         return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-    },
-    onClickHandler(){
-      this.fetchProdutosList();
-    },
-    handleDelete(id){
+    }
+
+    function handleDelete(id){
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -135,7 +130,7 @@ export default {
                       showConfirmButton: false,
                       timer: 1500
                   })
-                  this.fetchProdutosList();
+                  fetchProdutosList();
                   return response
                 },
                 (error) => {
@@ -150,9 +145,10 @@ export default {
             }
           })
     }
-  },
-};
+
 </script>
+
+
 
 <style>
   .pagination-container {

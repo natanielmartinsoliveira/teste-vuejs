@@ -32,58 +32,50 @@
       </div>
     </div>
   </template>
-  
-  <script>
-  import { Form, Field, ErrorMessage } from "vee-validate";
-  import * as yup from "yup";
-  
-  export default {
-    components: {
-      Form,
-      Field,
-      ErrorMessage,
+<script setup>
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
+import { computed, onMounted, ref } from 'vue';
+import { useStore } from "vuex";
+import { useRouter } from 'vue-router';
+
+const schema = yup.object().shape({
+    username: yup.string().required("Username is required!"),
+    password: yup.string().required("Password is required!"),
+  });
+
+let loading = ref();
+let message = ref('');
+const store = useStore();
+const route = useRouter();
+
+const loggedIn = computed(() =>{
+  return store.state.auth.status.loggedIn;
+});
+
+onMounted(() =>{
+  if (loggedIn.value) {
+    route.push({ path: '/' })
+  }
+})
+
+function handleLogin(user) {
+  loading = true;
+
+  store.dispatch("auth/login", user).then(
+    () => {
+      route.push({ path: '/all' })
     },
-    data() {
-      const schema = yup.object().shape({
-        username: yup.string().required("Username is required!"),
-        password: yup.string().required("Password is required!"),
-      });
-  
-      return {
-        loading: false,
-        message: "",
-        schema,
-      };
-    },
-    computed: {
-      loggedIn() {
-        return this.$store.state.auth.status.loggedIn;
-      },
-    },
-    created() {
-      if (this.loggedIn) {
-        this.$router.push("/");
-      }
-    },
-    methods: {
-      handleLogin(user) {
-        this.loading = true;
-  
-        this.$store.dispatch("auth/login", user).then(
-          () => {
-            this.$router.push({ path: '/all' })
-          },
-          (error) => {
-            this.loading = false;
-            this.message =
-              (error.response &&
-                error.response.data &&
-                error.response.data.message) ||
-              error.message ||
-              error.toString();
-          }
-        );
-      },
-    },
-  };
-  </script>
+    (error) => {
+      loading = false;
+      message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+    }
+  );
+}
+
+</script>

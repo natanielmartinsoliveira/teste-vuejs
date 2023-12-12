@@ -11,6 +11,9 @@ const router = createRouter({
     history: createWebHistory(),
     routes: [
         { 
+            path: '/', 
+            component: ProductList },
+        { 
             path: '/all', 
             component: ProductList },
         { 

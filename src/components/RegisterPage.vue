@@ -42,85 +42,78 @@
       </div>
     </div>
   </template>
-  
-  <script>
-  import { Form, Field, ErrorMessage } from "vee-validate";
-  import * as yup from "yup";
-  
-  export default {
-    components: {
-      Form,
-      Field,
-      ErrorMessage,
-    },
-    data() {
-      const schema = yup.object().shape({
-        name: yup
-          .string()
-          .required("Username is required!")
-          .min(3, "Must be at least 3 characters!")
-          .max(20, "Must be maximum 20 characters!"),
-        email: yup
-          .string()
-          .required("Email is required!")
-          .email("Email is invalid!")
-          .max(50, "Must be maximum 50 characters!"),
-        password: yup
-          .string()
-          .required("Password is required!")
-          .min(6, "Must be at least 6 characters!")
-          .max(40, "Must be maximum 40 characters!"),
-      });
-  
-      return {
-        successful: false,
-        loading: false,
-        message: "",
-        schema,
-      };
-    },
-    computed: {
-      loggedIn() {
-        return this.$store.state.auth.status.loggedIn;
-      },
-    },
-    mounted() {
-      if (this.loggedIn) {
-        this.$router.push({ path: '/user' })
+
+<script setup>
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
+import { computed, onMounted, ref } from 'vue';
+import { useStore } from "vuex";
+import { useRouter } from 'vue-router';
+
+const schema = yup.object().shape({
+    name: yup
+      .string()
+      .required("Username is required!")
+      .min(3, "Must be at least 3 characters!")
+      .max(20, "Must be maximum 20 characters!"),
+    email: yup
+      .string()
+      .required("Email is required!")
+      .email("Email is invalid!")
+      .max(50, "Must be maximum 50 characters!"),
+    password: yup
+      .string()
+      .required("Password is required!")
+      .min(6, "Must be at least 6 characters!")
+      .max(40, "Must be maximum 40 characters!"),
+  });
+      
+let successful = ref(false);
+let loading = ref(false);
+let message = ref("");
+const store = useStore();
+const route = useRouter();
+
+const loggedIn = computed(() =>{
+  return store.state.auth.status.loggedIn ?? false;
+});
+
+onMounted(() =>{
+  if (loggedIn.value) {
+    route.push({ path: '/user' })
+  }
+})
+
+function handleRegister(user) {
+  message = "";
+  successful = false;
+  loading = true;
+
+  store.dispatch("auth/register", user).then(
+    (data) => {
+      console.log(data);
+      if (data?.access_token) {
+        window.localStorage.setItem('user', JSON.stringify(data));
       }
+      message = data.message;
+      successful = true;
+      loading = false;
+      route.push({ path: '/all' });
     },
-    methods: {
-      handleRegister(user) {
-        this.message = "";
-        this.successful = false;
-        this.loading = true;
-  
-        this.$store.dispatch("auth/register", user).then(
-          (data) => {
-            console.log(data);
-            if (data?.access_token) {
-              localStorage.setItem('user', JSON.stringify(data));
-            }
-            this.message = data.message;
-            this.successful = true;
-            this.loading = false;
-            this.$router.push({ path: '/all' })
-          },
-          (error) => {
-            this.message =
-              (error.response &&
-                error.response.data &&
-                error.response.data.message) ||
-              error.message ||
-              error.toString();
-            this.successful = false;
-            this.loading = false;
-          }
-        );
-      },
-    },
-  };
-  </script>
+    (error) => {
+      message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      successful = false;
+      loading = false;
+    }
+  );
+}
+</script>
+
   
 
   

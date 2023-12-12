@@ -69,8 +69,9 @@
     </div>
   </layout-div>
 </template>
- 
-<script>
+<script setup>
+
+import { reactive, onMounted } from 'vue'
 import LayoutDiv from '../LayoutDiv.vue';
 import Swal from 'sweetalert2'
 import Datepicker from '@vuepic/vue-datepicker';
@@ -80,74 +81,61 @@ import ProdutosService from "../../services/produtos.service";
 import FileUpload from '../FileUpload';
 import CategoriasService from "../../services/categorias.service";
 
-export default {
-  name: 'ProductCreate',
-  components: {
-    LayoutDiv,
-    Datepicker,
-    CurrencyInput,
-    FileUpload
-  },
-  data() {
-    return {
-      produto: {
+ let produto = reactive({
         nome: '',
         descricao: '',
         preco: 0,
         validade: new Date(),
         arquivo: [],
         categoria_id: ''
-      },
-      categorias : null,
-      isSaving:false,
-    };
-  },
- created() {
-   CategoriasService.getCategoriasPage().then(
-      (response) => {
-        let CategoriasInfo = response.data.data
-        this.categorias = CategoriasInfo
-        return response
-      },
-      (error) => {
-        return error
       });
- },
-  methods: {
-    handleSave() {
-        this.isSaving = true
-        ProdutosService.getCreateSave(this.produto).then(
-        (response) => {
-            Swal.fire({
-                icon: 'success',
-                title: 'Project saved successfully!',
-                showConfirmButton: false,
-                timer: 1500
-            })
-            this.isSaving = false
-            this.produto.nome = ""
-            this.produto.descricao = ""
-            this.produto.preco = 0
-            this.produto.validade = new Date()
-            this.produto.arquivo = ""
-            this.produto.categoria_id = ""
-            return response
-        },
-        (error) => {
-            this.isSaving = false
-            Swal.fire({
-                icon: 'error',
-                title: 'An Error Occured!',
-                showConfirmButton: false,
-                timer: 1500
-            })
-            return error
-        });
-      
+ let categorias = reactive();
+ let isSaving = reactive();
+
+ onMounted(() => {
+  CategoriasService.getCategoriasPage().then(
+    (response) => {
+      let CategoriasInfo = response.data.data
+      categorias = CategoriasInfo
+      return response
     },
-    changeCategoria(event){
-      console.log('value',event.target.value,this.produto.categoria_id);
-    }
-  },
-};
+    (error) => {
+      return error
+    });
+})
+
+ function handleSave() {
+    isSaving = true
+    ProdutosService.getCreateSave(produto).then(
+    (response) => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Project saved successfully!',
+            showConfirmButton: false,
+            timer: 1500
+        })
+        isSaving = false
+        produto.nome = ""
+        produto.descricao = ""
+        produto.preco = 0
+        produto.validade = new Date()
+        produto.arquivo = ""
+        produto.categoria_id = ""
+        return response
+    },
+    (error) => {
+        isSaving = false
+        Swal.fire({
+            icon: 'error',
+            title: 'An Error Occured!',
+            showConfirmButton: false,
+            timer: 1500
+        })
+        return error
+    }); 
+ }
+ function changeCategoria(event){
+  console.log('value',event.target.value,produto.categoria_id);
+ }
+
 </script>

@@ -47,20 +47,21 @@
     </div>
   </div>
 </template>
+<script setup>
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
-<script>
-export default {
-  name: 'App',
-  computed: {
-    currentUser() {
-      return this.$store.state.auth.user;
-    }
-  },
-  methods: {
-    logOut() {
-      this.$store.dispatch('auth/logout');
-      this.$router.push('/login');
-    }
+  const route = useRouter();
+  const store = useStore()
+  const currentUser = computed(() => {
+      return store.state.auth.user;
+  });
+
+  function logOut() {
+    store.dispatch('auth/logout');
+    route.push({ path: '/login' });
   }
-};
+
 </script>
+
