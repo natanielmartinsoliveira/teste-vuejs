@@ -6,45 +6,98 @@
                 <div class="card-header">
                     <router-link to="/create"
                         class="btn btn-outline-primary"
-                        >Create New Produto
+                        >Criar novo Produto
                     </router-link>
                 </div>
                 <div class="card-body">
-             
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Descricao</th>
-                                <th>Preço</th>
-                                <th>Validade</th>
-                                <th>Arquivo</th>
-                                <th>Categoria</th>
-                                <th width="240px">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                             
-                            <tr v-for="produto in items" :key="produto.id">
-                                <td>{{produto.nome}}</td>
-                                <td>{{produto.descricao}}</td>
-                                <td>R$ {{formatPrice(produto.preco)}}</td>
-                                <td>{{formattedDate(new Date(produto.validade))}}</td>
-                                <td>{{produto.arquivo}}</td>
-                                <td>{{produto.categoria}}</td>
-                                <td>
-                                    <router-link :to="`/show/${produto.id}`" class="btn btn-outline-info mx-1">Show</router-link>
-                                    <router-link :to="`/edit/${produto.id}`" class="btn btn-outline-success mx-1">Edit</router-link>
-                                    <button 
-                                        @click="handleDelete(produto.id)"
-                                        className="btn btn-outline-danger mx-1">
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                                 
-                        </tbody>
-                    </table>
+                    <div class="container">
+                      <div class="row text-center border-bottom mb-2 pb-2">
+                        <div class="col-sm text-center d-none d-md-block ">
+                          Nome
+                        </div>
+                        <div class="col-sm text-center d-none d-md-block ">
+                          Descricao
+                        </div>
+                        <div class="col-sm text-center d-none d-md-block ">
+                          Preço
+                        </div>
+                        <div class="col-sm text-center d-none d-md-block ">
+                          Validade
+                        </div>
+                        <div class="col-sm text-center d-none d-md-block ">
+                          Arquivo
+                        </div>
+                        <div class="col-sm text-center d-none d-md-block ">
+                          Categoria
+                        </div>
+                        <div class="col-md-4 text-center d-none d-md-block ">
+                          Ações
+                        </div>
+                      </div>
+           
+                      <div class="row border-bottom mb-2 pb-2" v-for="produto in items" :key="produto.id">
+                        <div class="col-sm">
+                          <div class="text-center d-block d-sm-block d-md-none">
+                            Nome : {{produto.nome}}
+                          </div>
+                          <div class="text-center d-none d-md-block">
+                            {{produto.nome}}
+                          </div> 
+                        </div>
+                        <div class="col-sm">
+                          <div class="text-center d-block d-sm-block d-md-none">
+                            Descricao : {{produto.descricao}}
+                          </div>
+                          <div class="text-center d-none d-md-block">
+                            {{produto.descricao}}
+                          </div> 
+                        </div>
+                        <div class="col-sm text-center">
+                          <div class="text-center d-block d-sm-block d-md-none">
+                            Preço : R$ {{formatPrice(produto.preco)}}
+                          </div>
+                          <div class="text-center d-none d-md-block">
+                            R$ {{formatPrice(produto.preco)}}
+                          </div> 
+                        </div>
+                        <div class="col-sm text-center">
+                          <div class="text-center d-block d-sm-block d-md-none">
+                            Validade : {{formattedDate(new Date(produto.validade))}}
+                          </div>
+                          <div class="text-center d-none d-md-block">
+                            {{formattedDate(new Date(produto.validade))}}
+                          </div>                       
+                        </div>
+                        <div class="col-sm text-center">
+                          <div class="text-center d-block d-sm-block d-md-none">
+                            Arquivo : {{produto.arquivo}}
+                          </div>
+                          <div class="text-center d-none d-md-block">
+                            {{produto.arquivo}}
+                          </div>
+                        </div>
+                        <div class="col-sm text-center">
+                          <div class="text-center d-block d-sm-block d-md-none">
+                            Categoria : {{produto.categoria}}
+                          </div>
+                          <div class="text-center d-none d-md-block">
+                            {{produto.categoria}}
+                          </div>
+                          
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <router-link :to="`/show/${produto.id}`" class="btn btn-outline-info mx-1">Ver</router-link>
+                            <router-link :to="`/edit/${produto.id}`" class="btn btn-outline-success mx-1">Editar</router-link>
+                            <button 
+                                @click="handleDelete(produto.id)"
+                                className="btn btn-outline-danger mx-1">
+                                Apagar
+                            </button>
+                        </div>
+                      </div>
+                    </div>    
+                 
+        
                     <div class="text-center">
                       <vue-awesome-paginate :total-items="totalItems" v-model="currentPage" />
                     </div>

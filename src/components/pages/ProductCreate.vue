@@ -9,62 +9,75 @@
             </router-link>
         </div>
         <div class="card-body">
-            <form>
+            <Form @submit="handleSave" :validation-schema="schema">
                 <div class="form-group">
-                    <label htmlFor="name">Name</label>
-                    <input 
+                    <label htmlFor="nome">Nome</label>
+                    <Field 
                         v-model="produto.nome"
                         type="text"
                         class="form-control"
-                        id="name"
-                        name="name"/>
+                        id="nome"
+                        name="nome"/>
+                    <ErrorMessage name="nome" class="error-feedback" />
                 </div>
                 <div class="form-group">
-                    <label htmlFor="description">Description</label>
-                    <textarea 
+                    <label htmlFor="descricao">Descrição</label>
+                    <Field as="textarea" 
                         v-model="produto.descricao"
                         class="form-control"
-                        id="description"
+                        id="descricao"
                         rows="3"
-                        name="description"></textarea>
+                        name="descricao"></Field>
+                    <ErrorMessage name="descricao" class="error-feedback" />
                 </div>
                 <div class="form-group">
                     <label htmlFor="preco">Preco</label>
                     <CurrencyInput
-                          v-model="produto.preco"
-                          :options="{ currency: 'BRL' }"
-                        />
+                        id="preco"
+                        :options="{ currency: 'BRL' }"
+                        v-model="produto.preco"
+                    />
                 </div>
                 <div class="form-group">
                     <label htmlFor="Validade">Validade</label>
-                    <Datepicker htmlFor="Validade" v-model="produto.validade" />
+                    <Datepicker htmlFor="Validade" name="Validade" v-model="produto.validade" format="yyyy-MM-dd"  />
                 </div> 
     
                 <div class="form-group">
-                    <label htmlFor="preco">Preco</label>
+                    <label htmlFor="upload">Arquivo</label>
                     <FileUpload class="form-control"
                       v-model="produto.arquivo"
+                      name="upload" id="upload"
                     />
+                    <ErrorMessage name="upload" class="error-feedback" />
                 </div>
 
 
                 <div class="form-group">
-                    <label htmlFor="preco">Categoria</label>
-                    <select class="form-control" v-model="produto.categoria_id" @change="changeCategoria($event)">
-                        <option>Choose Categoria</option>
-                        <option v-for="(categoria) in categorias" v-bind:key="categoria.id" :value="categoria.id" >{{categoria.nome}}</option>
-                    </select>
+                    <label htmlFor="categoria">Categoria</label>
+                    <Field as="div" 
+                        v-slot="{ field }" 
+                        v-model="produto.categoria_id"
+                        name="categoria" 
+                        @change="changeCategoria($event)"
+                    >
+                        <select v-bind="field" class="form-control" >
+                            <option>Selecione uma Categoria</option>
+                            <option v-for="(categoria) in categorias" v-bind:key="categoria.id" :value="categoria.id" >{{categoria.nome}}</option>
+                        </select>
+                        <ErrorMessage name="categoria" class="error-feedback" />
+                    </Field>
                 </div>
                 
 
                 <button 
-                    @click="handleSave()"
                     :disabled="isSaving"
-                    type="button"
+                    type="submit"
                     class="btn btn-outline-primary mt-3">
-                    Save Project
+                    Salvar Produto
                 </button>
-            </form>
+            </Form>
+
         </div>
     </div>
   </layout-div>
@@ -80,6 +93,9 @@ import CurrencyInput from '../CurrencyInput';
 import ProdutosService from "../../services/produtos.service";
 import FileUpload from '../FileUpload';
 import CategoriasService from "../../services/categorias.service";
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
+import { useRouter } from 'vue-router';
 
  let produto = reactive({
         nome: '',
@@ -91,6 +107,23 @@ import CategoriasService from "../../services/categorias.service";
       });
  let categorias = reactive();
  let isSaving = reactive();
+ const route = useRouter();
+ 
+ const schema = yup.object().shape({
+    nome: yup
+      .string()
+      .required("Nome é Obrigatorio!")
+      .min(3, "Precisa ser maior que 3 caracteres!")
+      .max(50, "Precisa ser no maximo 100 caracteres!"),
+    descricao: yup
+      .string()
+      .required("Descricao é Obrigatorio!")
+      .min(10, "Precisa ser maior que 3 caracteres!")
+      .max(100, "Precisa ser no maximo 100 caracteres!"),
+    categoria: yup
+      .number()
+      .required("Categoria é Obrigatorio!")
+  });
 
  onMounted(() => {
   CategoriasService.getCategoriasPage().then(
@@ -105,6 +138,7 @@ import CategoriasService from "../../services/categorias.service";
 })
 
  function handleSave() {
+    alert('');
     isSaving = true
     ProdutosService.getCreateSave(produto).then(
     (response) => {
@@ -120,7 +154,8 @@ import CategoriasService from "../../services/categorias.service";
         produto.preco = 0
         produto.validade = new Date()
         produto.arquivo = ""
-        produto.categoria_id = ""
+        produto.categoria_id = 0
+        route.push({ path: '/all' })
         return response
     },
     (error) => {

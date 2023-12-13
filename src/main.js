@@ -5,7 +5,7 @@ import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import router from './router'
 import store from "./store";
-
+import { FontAwesomeIcon } from './plugins/font-awesome'
 // import the package
 import VueAwesomePaginate from "vue-awesome-paginate";
 
@@ -18,4 +18,9 @@ axios.interceptors.request.use(function (config) {
   return config;
 });
 
-createApp(App).use(router).use(store).use(VueAwesomePaginate).mount('#app')
+createApp(App)
+  .use(router)
+  .use(store)
+  .component("font-awesome-icon", FontAwesomeIcon)
+  .use(VueAwesomePaginate)
+  .mount('#app')
